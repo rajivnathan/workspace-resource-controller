@@ -6,4 +6,14 @@ plugins:
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: workspace-resource-controller
 repo: github.com/rajivnathan/workspace-resource-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: appstudio.redhat.com
+  group: appstudio.redhat.com
+  kind: WorkspaceManifest
+  path: github.com/rajivnathan/workspace-resource-controller/api/v1alpha1
+  version: v1alpha1
 version: "3"

@@ -67,6 +67,9 @@ SHELL = /usr/bin/env bash -o pipefail
 .PHONY: all
 all: build
 
+# kcp specific
+APIEXPORT_PREFIX ?= today
+
 ##@ General
 
 # The help target prints out all targets with their descriptions organized
@@ -89,6 +92,10 @@ help: ## Display this help.
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+
+.PHONY: apiresourceschemas
+apiresourceschemas: kustomize ## Convert CRDs from config/crds to APIResourceSchemas. Specify APIEXPORT_PREFIX as needed.
+	$(KUSTOMIZE) build config/crd | kubectl kcp crd snapshot -f - --prefix $(APIEXPORT_PREFIX) > config/kcp/$(APIEXPORT_PREFIX).apiresourceschemas.yaml
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -117,12 +124,20 @@ run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
 .PHONY: docker-build
-docker-build: test ## Build docker image with the manager.
+docker-build: build ## Build docker image with the manager.
 	docker build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
+
+.PHONY: podman-build
+podman-build: build ## Build image with the manager.
+	podman build -t ${IMG} .
+
+.PHONY: podman-push
+podman-push: ## Push image with the manager.
+	podman push ${IMG}
 
 ##@ Deployment
 
