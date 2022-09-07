@@ -24,7 +24,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
+	// apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
+	"github.com/rajivnathan/workspace-resource-controller/api/v1alpha1"
 )
 
 // WorkspaceResourceReconciler reconciles a WorkspaceManifest object
@@ -47,9 +48,17 @@ type WorkspaceResourceReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
 func (r *WorkspaceResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
 	// TODO(user): your logic here
+	logger = logger.WithValues("clusterName", req.ClusterName)
+
+	var allManifests v1alpha1.WorkspaceManifestList
+	if err := r.List(ctx, &allManifests); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	logger.Info("Listed all manifests across all workspaces", "count", len(allManifests.Items))
 
 	return ctrl.Result{}, nil
 }
@@ -57,6 +66,6 @@ func (r *WorkspaceResourceReconciler) Reconcile(ctx context.Context, req ctrl.Re
 // SetupWithManager sets up the controller with the Manager.
 func (r *WorkspaceResourceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&apisv1alpha1.APIBinding{}).
+		For(&v1alpha1.WorkspaceManifest{}).
 		Complete(r)
 }

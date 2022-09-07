@@ -13,7 +13,7 @@ namePrefix: workspace-resource-controller-
 #  someName: someValue
 
 bases:
-- ../crd
+- ../kcp
 - ../rbac
 - ../manager
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
@@ -72,3 +72,10 @@ vars:
 #    kind: Service
 #    version: v1
 #    name: webhook-service
+- name: API_EXPORT_NAME
+  objref:
+    apiVersion: apis.kcp.dev/v1alpha1
+    kind: APIExport
+    name: core.appstudio.redhat.com
+  fieldref:
+    fieldPath: metadata.name

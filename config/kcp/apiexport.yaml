@@ -4,7 +4,7 @@ metadata:
   name: core.appstudio.redhat.com
 spec:
   latestResourceSchemas:
-    - today.core.appstudio.redhat.com
+    - workspace-resource-controller-today.workspacemanifests.appstudio.redhat.com
   permissionClaims:
     - group: ""
       resource: "secrets"
