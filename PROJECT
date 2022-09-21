@@ -13,7 +13,7 @@ resources:
   controller: true
   domain: appstudio.redhat.com
   group: appstudio.redhat.com
-  kind: WorkspaceManifest
+  kind: SampleSvc
   path: github.com/rajivnathan/workspace-resource-controller/api/v1alpha1
   version: v1alpha1
 version: "3"

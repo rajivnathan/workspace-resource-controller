@@ -1,13 +1,13 @@
-# permissions for end users to edit workspacemanifests.
+# permissions for end users to edit samplesvcs.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: workspacemanifest-editor-role
+  name: samplesvc-editor-role
 rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests
+  - samplesvcs
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests/status
+  - samplesvcs/status
   verbs:
   - get

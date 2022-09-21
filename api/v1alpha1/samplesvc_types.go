@@ -23,17 +23,17 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// WorkspaceManifestSpec defines the desired state of WorkspaceManifest
-type WorkspaceManifestSpec struct {
+// SampleSvcSpec defines the desired state of SampleSvc
+type SampleSvcSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of WorkspaceManifest. Edit workspacemanifest_types.go to remove/update
+	// Foo is an example field of SampleSvc. Edit samplesvc_types.go to remove/update
 	Foo string `json:"foo,omitempty"`
 }
 
-// WorkspaceManifestStatus defines the observed state of WorkspaceManifest
-type WorkspaceManifestStatus struct {
+// SampleSvcStatus defines the observed state of SampleSvc
+type SampleSvcStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
@@ -41,24 +41,24 @@ type WorkspaceManifestStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// WorkspaceManifest is the Schema for the workspacemanifests API
-type WorkspaceManifest struct {
+// SampleSvc is the Schema for the samplesvc API
+type SampleSvc struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   WorkspaceManifestSpec   `json:"spec,omitempty"`
-	Status WorkspaceManifestStatus `json:"status,omitempty"`
+	Spec   SampleSvcSpec   `json:"spec,omitempty"`
+	Status SampleSvcStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// WorkspaceManifestList contains a list of WorkspaceManifest
-type WorkspaceManifestList struct {
+// SampleSvcList contains a list of SampleSvc
+type SampleSvcList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []WorkspaceManifest `json:"items"`
+	Items           []SampleSvc `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&WorkspaceManifest{}, &WorkspaceManifestList{})
+	SchemeBuilder.Register(&SampleSvc{}, &SampleSvcList{})
 }

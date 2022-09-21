@@ -72,6 +72,7 @@ func main() {
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
+	flag.Lookup("v").Value.Set("6")
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
@@ -127,11 +128,19 @@ func main() {
 		}
 	}
 
-	if err = (&controllers.WorkspaceResourceReconciler{
+	if err = (&controllers.SampleSvcReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "WorkspaceManifest")
+		setupLog.Error(err, "unable to create controller", "controller", "SampleSvc")
+		os.Exit(1)
+	}
+
+	if err = (&controllers.ResourceReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Resource")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

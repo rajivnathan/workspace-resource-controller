@@ -1,6 +1,6 @@
 apiVersion: appstudio.redhat.com/v1alpha1
-kind: WorkspaceManifest
+kind: SampleSvc
 metadata:
-  name: workspacemanifest-sample
+  name: samplesvc-sample
 spec:
   # TODO(user): Add fields here

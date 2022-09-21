@@ -16,7 +16,7 @@ rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests
+  - samplesvcs
   verbs:
   - create
   - delete
@@ -28,13 +28,13 @@ rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests/finalizers
+  - samplesvcs/finalizers
   verbs:
   - update
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests/status
+  - samplesvcs/status
   verbs:
   - get
   - patch

@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/jeevandroid/workspace-resource-controller
-  newTag: 20220831-1139
+  newTag: 20220917-1716

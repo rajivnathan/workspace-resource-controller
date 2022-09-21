@@ -1,13 +1,13 @@
-# permissions for end users to view workspacemanifests.
+# permissions for end users to view samplesvcs.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: workspacemanifest-viewer-role
+  name: samplesvc-viewer-role
 rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests
+  - samplesvcs
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - appstudio.redhat.com
   resources:
-  - workspacemanifests/status
+  - samplesvcs/status
   verbs:
   - get

@@ -28,44 +28,44 @@ import (
 	"github.com/rajivnathan/workspace-resource-controller/api/v1alpha1"
 )
 
-// WorkspaceResourceReconciler reconciles a WorkspaceManifest object
-type WorkspaceResourceReconciler struct {
+// SampleSvcReconciler reconciles a SampleSvc object
+type SampleSvcReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=workspacemanifests,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=workspacemanifests/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=workspacemanifests/finalizers,verbs=update
+//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=samplesvcs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=samplesvcs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=appstudio.redhat.com,resources=samplesvcs/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the WorkspaceManifest object against the actual cluster state, and then
+// the SampleSvc object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.12.1/pkg/reconcile
-func (r *WorkspaceResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *SampleSvcReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	// TODO(user): your logic here
 	logger = logger.WithValues("clusterName", req.ClusterName)
 
-	var allManifests v1alpha1.WorkspaceManifestList
+	var allManifests v1alpha1.SampleSvcList
 	if err := r.List(ctx, &allManifests); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	logger.Info("Listed all manifests across all workspaces", "count", len(allManifests.Items))
+	logger.Info("Listed all samplesvcs across all workspaces", "count", len(allManifests.Items))
 
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *WorkspaceResourceReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *SampleSvcReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.WorkspaceManifest{}).
+		For(&v1alpha1.SampleSvc{}).
 		Complete(r)
 }
