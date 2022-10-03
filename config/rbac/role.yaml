@@ -8,6 +8,20 @@ rules:
 - apiGroups:
   - apis.kcp.dev
   resources:
+  - apibindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apis.kcp.dev
+  resources:
+  - apibindings/status
+  verbs:
+  - get
+- apiGroups:
+  - apis.kcp.dev
+  resources:
   - apiexports
   verbs:
   - get

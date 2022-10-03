@@ -26,6 +26,7 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	"k8s.io/client-go/discovery"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/klog/v2"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -39,6 +40,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	apisv1alpha1 "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
+	kcpapis "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
 	appstudioredhatcomv1alpha1 "github.com/rajivnathan/workspace-resource-controller/api/v1alpha1"
 	"github.com/rajivnathan/workspace-resource-controller/controllers"
 	//+kubebuilder:scaffold:imports
@@ -53,6 +55,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(appstudioredhatcomv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(kcpapis.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -70,7 +73,10 @@ func main() {
 	opts := zap.Options{
 		Development: true,
 	}
+
 	opts.BindFlags(flag.CommandLine)
+	klog.InitFlags(flag.CommandLine)
+
 	flag.Parse()
 	flag.Lookup("v").Value.Set("6")
 

@@ -12,3 +12,5 @@ spec:
       resource: "configmaps"
     - group: ""
       resource: "namespaces"
+    - group: "apis.kcp.dev"
+      resource: "apibindings"

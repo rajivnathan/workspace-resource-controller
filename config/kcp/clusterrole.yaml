@@ -2,13 +2,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: kcp-manager-role
 rules:
 - apiGroups:
   - apis.kcp.dev
   resources:
   - apiexports
+  - apibindings
   verbs:
   - get
   - list
