@@ -59,6 +59,7 @@ func (r *ResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Add the logical cluster to the context
 	ctx = logicalcluster.WithCluster(ctx, logicalcluster.New(req.ClusterName))
 
+	logger.Info("Rendering template resources")
 	tmplBytes, err := templates.RenderResources(r.ResourceTemplates.Content, r.ResourceTemplates.Args)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -83,6 +84,7 @@ func (r *ResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// }
 
 	// err = r.Client.Create(ctx, cm)
+	logger.Info("Creating resources from template", "content", string(tmplBytes))
 	return ctrl.Result{}, r.createResourcesFromTemplate(logger, ctx, tmplBytes)
 }
 
@@ -109,6 +111,7 @@ func (r *ResourceReconciler) createResourcesFromTemplate(logger logr.Logger, ctx
 		return err
 	}
 
+	logger.Info("Creating objects", "size", len(objsToProcess))
 	// create objects
 	for _, rawObj := range objsToProcess {
 		err := r.createObject(logger, ctx, rawObj)

@@ -58,8 +58,8 @@ var embeddedResources embed.FS
 
 // templateArgs represents the arguments to fill in the template
 type templateArgs struct {
-	Namespace     string
-	WebhookDeploy string
+	Namespace       string
+	DoDeployWebhook string
 }
 
 func init() {
@@ -167,8 +167,8 @@ func main() {
 		ResourceTemplates: templates.TemplateData{
 			Content: resourceTemplate,
 			Args: &templateArgs{
-				Namespace:     "default",
-				WebhookDeploy: "true",
+				Namespace:       "default",
+				DoDeployWebhook: "true",
 			},
 		},
 	}).SetupWithManager(mgr); err != nil {
