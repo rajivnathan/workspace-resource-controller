@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"flag"
 	"fmt"
 	"os"
@@ -43,6 +44,7 @@ import (
 	kcpapis "github.com/kcp-dev/kcp/pkg/apis/apis/v1alpha1"
 	appstudioredhatcomv1alpha1 "github.com/rajivnathan/workspace-resource-controller/api/v1alpha1"
 	"github.com/rajivnathan/workspace-resource-controller/controllers"
+	"github.com/rajivnathan/workspace-resource-controller/templates"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -50,6 +52,15 @@ var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
+
+//go:embed resources
+var embeddedResources embed.FS
+
+// templateArgs represents the arguments to fill in the template
+type templateArgs struct {
+	Namespace     string
+	WebhookDeploy string
+}
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
@@ -110,6 +121,13 @@ func main() {
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
 	}
+
+	resourceTemplate, err := embeddedResources.ReadFile("resources/templates/resources.yaml")
+	if err != nil {
+		setupLog.Error(err, "unable to read template resource files")
+		os.Exit(1)
+	}
+
 	if kcpAPIsGroupPresent(restConfig) {
 		setupLog.Info("Looking up virtual workspace URL")
 		cfg, err := restConfigForAPIExport(ctx, restConfig, apiExportName)
@@ -144,7 +162,15 @@ func main() {
 
 	if err = (&controllers.ResourceReconciler{
 		Client: mgr.GetClient(),
+		Config: mgr.GetConfig(),
 		Scheme: mgr.GetScheme(),
+		ResourceTemplates: templates.TemplateData{
+			Content: resourceTemplate,
+			Args: &templateArgs{
+				Namespace:     "default",
+				WebhookDeploy: "true",
+			},
+		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Resource")
 		os.Exit(1)
