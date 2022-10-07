@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net/http"
 
 	"github.com/go-logr/logr"
 	"github.com/rajivnathan/workspace-resource-controller/templates"
@@ -21,16 +22,14 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/restmapper"
 )
 
 // ResourceReconciler reconciles a SampleSvc object
 type ResourceReconciler struct {
 	client.Client
+	KCPHTTPClient     *http.Client
 	Config            *rest.Config
 	Scheme            *runtime.Scheme
 	ResourceTemplates templates.TemplateData
@@ -49,6 +48,9 @@ func (r *ResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	logger = logger.WithValues("clusterName", req.ClusterName)
 
+	// Add the logical cluster to the context
+	clusterCtx := logicalcluster.WithCluster(ctx, logicalcluster.New(req.ClusterName))
+
 	var apiBindings kcpapis.APIBindingList
 	if err := r.List(ctx, &apiBindings); err != nil {
 		return ctrl.Result{}, err
@@ -56,19 +58,13 @@ func (r *ResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	logger.Info("Resource controller listed all APIBindings across all workspaces", "count", len(apiBindings.Items))
 
-	// Add the logical cluster to the context
-	ctx = logicalcluster.WithCluster(ctx, logicalcluster.New(req.ClusterName))
-
-	logger.Info("Rendering template resources")
-	tmplBytes, err := templates.RenderResources(r.ResourceTemplates.Content, r.ResourceTemplates.Args)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+	name, _ := logicalcluster.ClusterFromContext(clusterCtx)
+	logger.Info("cluster from context1", "name", name)
 
 	// cmName := "test"
 	// cmNs := "default"
 	// cm := &corev1.ConfigMap{}
-	// err = r.Client.Get(ctx, types.NamespacedName{Name: cmName, Namespace: cmNs}, cm)
+	// err := r.Client.Get(ctx, types.NamespacedName{Name: cmName, Namespace: cmNs}, cm)
 	// if err == nil || !errors.IsNotFound(err) {
 	// 	return ctrl.Result{}, err
 	// }
@@ -84,8 +80,18 @@ func (r *ResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// }
 
 	// err = r.Client.Create(ctx, cm)
+	// if err != nil {
+	// 	return ctrl.Result{}, err
+	// }
+
+	logger.Info("Rendering template resources")
+	tmplBytes, err := templates.RenderResources(r.ResourceTemplates.Content, r.ResourceTemplates.Args)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	logger.Info("Creating resources from template", "content", string(tmplBytes))
-	return ctrl.Result{}, r.createResourcesFromTemplate(logger, ctx, tmplBytes)
+	return ctrl.Result{}, r.createResourcesFromTemplate(logger, clusterCtx, tmplBytes)
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -136,27 +142,38 @@ func (r *ResourceReconciler) createObject(logger logr.Logger, ctx context.Contex
 	}
 	unstructuredObj := &unstructured.Unstructured{Object: unstructuredMap}
 
-	dynamicCl, err := dynamic.NewForConfig(r.Config)
+	dynamicCl, err := dynamic.NewForConfigAndClient(r.Config, r.KCPHTTPClient)
+	// dynamicCl, err := dynamic.NewForConfig(r.Config)
 	if err != nil {
 		return err
 	}
-	dc, err := discovery.NewDiscoveryClientForConfig(r.Config)
-	if err != nil {
-		return err
-	}
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc))
-	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	// dc, err := discovery.NewDiscoveryClientForConfig(r.Config)
+	// if err != nil {
+	// 	return err
+	// }
+
+	logger.Info("Getting GVK")
+
+	// mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc))
+	// mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	// if err != nil {
+	// 	return err
+	// }
+
+	mapping, err := r.Client.RESTMapper().RESTMapping(gvk.GroupKind(), gvk.Version)
 	if err != nil {
 		return err
 	}
 
 	// unstructuredObj.SetNamespace(p.namespace)
 	// dri := dynamicCl.Resource(mapping.Resource).Namespace(p.namespace)
-	dri := dynamicCl.Resource(mapping.Resource)
+	dri := dynamicCl.Resource(mapping.Resource).Namespace(unstructuredObj.GetNamespace())
 
 	logger.Info("Creating object", "name", unstructuredObj.GetName(), "namespace", unstructuredObj.GetNamespace())
 
-	_, err = dri.Create(context.TODO(), unstructuredObj, metav1.CreateOptions{})
+	name, _ := logicalcluster.ClusterFromContext(ctx)
+	logger.Info("cluster from context2", "name", name)
+	_, err = dri.Create(ctx, unstructuredObj, metav1.CreateOptions{})
 	if err != nil {
 		err = errs.Wrapf(err, "problem creating %+v", unstructuredObj)
 	}

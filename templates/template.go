@@ -7,11 +7,11 @@ import (
 
 type TemplateData struct {
 	Content []byte
-	Args    interface{}
+	Args    any
 }
 
 // RenderResources renders the resources from the provided template
-func RenderResources(tmplContent []byte, tmplArgs interface{}) ([]byte, error) {
+func RenderResources(tmplContent []byte, tmplArgs any) ([]byte, error) {
 	// templateBytes, err := embeddedResources.ReadFile("resources.yaml")
 	// if err != nil {
 	// 	return nil, err

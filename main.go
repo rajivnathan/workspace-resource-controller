@@ -160,15 +160,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// restCfg := kcpclient.SetMultiClusterRoundTripper(rest.CopyConfig(mgr.GetConfig()))
+	// httpClient, err := kcp.ClusterAwareHttpClient(restConfig)
+	httpClient, err := kcp.ClusterAwareHTTPClient(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to initialize cluster aware http client", "controller", "SampleSvc")
+		os.Exit(1)
+	}
+
 	if err = (&controllers.ResourceReconciler{
-		Client: mgr.GetClient(),
-		Config: mgr.GetConfig(),
-		Scheme: mgr.GetScheme(),
+		Client:        mgr.GetClient(),
+		Config:        mgr.GetConfig(),
+		Scheme:        mgr.GetScheme(),
+		KCPHTTPClient: httpClient,
 		ResourceTemplates: templates.TemplateData{
 			Content: resourceTemplate,
 			Args: &templateArgs{
 				Namespace:       "default",
-				DoDeployWebhook: "true",
+				DoDeployWebhook: "'true'",
 			},
 		},
 	}).SetupWithManager(mgr); err != nil {
